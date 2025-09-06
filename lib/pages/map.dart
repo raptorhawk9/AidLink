@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:g2e/widgets/g2e_appbar.dart';
 
 class MapPage extends StatefulWidget {
   const MapPage({super.key, required this.title});
@@ -12,7 +13,7 @@ class _MapPageState extends State<MapPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text(widget.title)),
+      appBar: G2EAppbar(title: widget.title),
       body: const Center(child: Text('Map Page')),
     );
   }
