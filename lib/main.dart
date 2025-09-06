@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:g2e/widgets/g2e_appbar.dart';
 
 void main() {
   runApp(const G2E());
@@ -11,6 +12,7 @@ class G2E extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false, 
       title: 'G2E',
       theme: ThemeData(
         // This is the theme of your application.
@@ -64,15 +66,7 @@ class _HomePageState extends State<HomePage> {
     // fast, so that you can just rebuild anything that needs updating rather
     // than having to individually change instances of widgets.
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: Text(widget.title),
-        actions: [
-          TextButton(onPressed: () => {print("Map")}, child: Text("Map")), 
-          TextButton(onPressed: () => {print("Food Calc")}, child: Text("Food Calc")), 
-          TextButton(onPressed: () => {print("Env Nav")}, child: Text("Environment Nav Guide")), 
-        ],
-      ),
+      appBar: G2eAppbar(title: widget.title), 
       body: Center(
         // Center is a layout widget. It takes a single child and positions it
         // in the middle of the parent.
