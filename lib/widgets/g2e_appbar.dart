@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 
-class G2eAppbar extends StatelessWidget implements PreferredSizeWidget {
+class G2EAppbar extends StatelessWidget implements PreferredSizeWidget {
   
   final String title;
 
-  const G2eAppbar({super.key, required this.title}); 
+  const G2EAppbar({super.key, required this.title}); 
 
   @override
   Widget build(BuildContext context) {
