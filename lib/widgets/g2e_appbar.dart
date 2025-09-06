@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 
-class G2EAppbar extends StatelessWidget implements PreferredSizeWidget {
+class AidlinkAppbar extends StatelessWidget implements PreferredSizeWidget {
   
   final String title;
 
-  const G2EAppbar({super.key, required this.title}); 
+  const AidlinkAppbar({super.key, required this.title}); 
 
   void navigateToNewSubpage(BuildContext context, String route) {
     print("hi");

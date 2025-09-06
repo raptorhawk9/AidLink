@@ -5,15 +5,30 @@ class FoodCalcPage extends StatefulWidget {
   const FoodCalcPage({super.key, required this.title});
   final String title;
 
+  static const List<String> foodTypeOptions = [
+    "  Canned Food",
+    "  Meat",
+    "  Vegetables",
+    "  Processed Food",
+  ];
+
+  List<DropdownMenuItem> listToDropdownOptions(List<String> list) {
+    return list.map((String option) {
+      return DropdownMenuItem<String>(value: option, child: Text(option));
+    }).toList();
+  }
+
   @override
   State<FoodCalcPage> createState() => _FoodCalcPageState();
 }
 
 class _FoodCalcPageState extends State<FoodCalcPage> {
+  String? foodType;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: G2EAppbar(title: widget.title), 
+      appBar: AidlinkAppbar(title: widget.title),
       body: Center(
         // Center is a layout widget. It takes a single child and positions it
         // in the middle of the parent.
@@ -29,7 +44,16 @@ class _FoodCalcPageState extends State<FoodCalcPage> {
           // horizontal).
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            const Text('Food Calculation'),
+            DropdownButton(
+              items: widget.listToDropdownOptions(FoodCalcPage.foodTypeOptions),
+              value: foodType,
+              onChanged: (value) {
+                setState(() {
+                  foodType = value;
+                });
+              },
+              borderRadius: BorderRadius.circular(8),
+            ),
           ],
         ),
       ),

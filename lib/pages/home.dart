@@ -30,7 +30,7 @@ class _HomePageState extends State<HomePage> {
     // fast, so that you can just rebuild anything that needs updating rather
     // than having to individually change instances of widgets.
     return Scaffold(
-      appBar: G2EAppbar(title: widget.title), 
+      appBar: AidlinkAppbar(title: widget.title), 
       body: Center(
         // Center is a layout widget. It takes a single child and positions it
         // in the middle of the parent.
@@ -46,7 +46,7 @@ class _HomePageState extends State<HomePage> {
           // horizontal).
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            const Text('Welcome to G2E! Go to a page to access a resource! '),
+            const Text('Welcome to AidLink! Go to a page to access a resource! '),
           ],
         ),
       ),

@@ -4,16 +4,16 @@ import 'package:g2e/pages/home.dart';
 import 'package:g2e/pages/map.dart';
 
 void main() {
-  runApp(const G2E());
+  runApp(const AidLink());
 }
 
-class G2E extends StatelessWidget {
-  const G2E({super.key});
+class AidLink extends StatelessWidget {
+  const AidLink({super.key});
 
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    String title = "G2E";
+    String title = "AidLink";
     return MaterialApp(
       debugShowCheckedModeBanner: false, 
       initialRoute: "/",
@@ -22,7 +22,7 @@ class G2E extends StatelessWidget {
         '/food-calc': (context) => FoodCalcPage(title: title), 
         '/map': (context) => MapPage(title: title),
       },
-      title: 'G2E',
+      title: 'AidLink',
       theme: ThemeData(
         // This is the theme of your application.
         //
@@ -39,7 +39,7 @@ class G2E extends StatelessWidget {
         //
         // This works for code too, not just values: Most code changes can be
         // tested with just a hot reload.
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        colorScheme: ColorScheme.fromSeed(seedColor: const Color.fromARGB(255, 16, 83, 21)),
       ),
     );
   }
