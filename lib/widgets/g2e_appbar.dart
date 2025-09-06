@@ -13,7 +13,7 @@ class G2EAppbar extends StatelessWidget implements PreferredSizeWidget {
         title: Text(title),
         actions: [
           TextButton(onPressed: () => {print("Map")}, child: Text("Map")), 
-          TextButton(onPressed: () => {print("Food Calc")}, child: Text("Food Calc")), 
+          TextButton(onPressed: () => {Navigator.pushNamed(context, '/food-calc')}, child: Text("Food Calc")), 
           TextButton(onPressed: () => {print("Env Nav")}, child: Text("Environment Nav Guide")), 
         ],
     );
