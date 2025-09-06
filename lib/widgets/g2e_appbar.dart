@@ -12,7 +12,7 @@ class G2EAppbar extends StatelessWidget implements PreferredSizeWidget {
       backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         title: Text(title),
         actions: [
-          TextButton(onPressed: () => {print("Map")}, child: Text("Map")), 
+          TextButton(onPressed: () => {Navigator.pushNamed(context, '/map')}, child: Text("Map")), 
           TextButton(onPressed: () => {Navigator.pushNamed(context, '/food-calc')}, child: Text("Food Calc")), 
           TextButton(onPressed: () => {print("Env Nav")}, child: Text("Environment Nav Guide")), 
         ],

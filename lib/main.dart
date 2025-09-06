@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:g2e/pages/food_calc.dart';
 import 'package:g2e/pages/home.dart';
+import 'package:g2e/pages/map.dart';
 
 void main() {
   runApp(const G2E());
@@ -19,6 +20,7 @@ class G2E extends StatelessWidget {
       routes: {
         '/': (context) => HomePage(title: title),  
         '/food-calc': (context) => FoodCalcPage(title: title), 
+        '/map': (context) => MapPage(title: title),
       },
       title: 'G2E',
       theme: ThemeData(
