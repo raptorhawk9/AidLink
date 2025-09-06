@@ -6,10 +6,10 @@ class FoodCalcPage extends StatefulWidget {
   final String title;
 
   static const List<String> foodTypeOptions = [
-    "  Canned Food",
-    "  Meat",
-    "  Vegetables",
-    "  Processed Food",
+    "Canned Food",
+    "Meat",
+    "Vegetables",
+    "Processed Food",
   ];
 
   List<DropdownMenuItem> listToDropdownOptions(List<String> list) {
@@ -51,18 +51,21 @@ class _FoodCalcPageState extends State<FoodCalcPage> {
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: DropdownButton(
-                items: widget.listToDropdownOptions(
-                  FoodCalcPage.foodTypeOptions,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                child: DropdownButton(
+                  items: widget.listToDropdownOptions(
+                    FoodCalcPage.foodTypeOptions,
+                  ),
+                  value: foodType,
+                  onChanged: (value) {
+                    setState(() {
+                      foodType = value;
+                    });
+                  },
+                  borderRadius: BorderRadius.circular(8),
+                  dropdownColor: Colors.grey[900],
                 ),
-                value: foodType,
-                onChanged: (value) {
-                  setState(() {
-                    foodType = value;
-                  });
-                },
-                borderRadius: BorderRadius.circular(8),
-                dropdownColor: Colors.grey[900],
               ),
             ),
           ],
@@ -71,3 +74,4 @@ class _FoodCalcPageState extends State<FoodCalcPage> {
     );
   }
 }
+
