@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:g2e/widgets/g2e_appbar.dart';
+import 'package:g2e/pages/food_calc.dart';
+import 'package:g2e/pages/home.dart';
 
 void main() {
   runApp(const G2E());
@@ -11,8 +12,14 @@ class G2E extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
+    String title = "G2E";
     return MaterialApp(
       debugShowCheckedModeBanner: false, 
+      initialRoute: "/",
+      routes: {
+        '/': (context) => HomePage(title: title),  
+        '/food-calc': (context) => FoodCalcPage(title: title), 
+      },
       title: 'G2E',
       theme: ThemeData(
         // This is the theme of your application.
@@ -31,60 +38,6 @@ class G2E extends StatelessWidget {
         // This works for code too, not just values: Most code changes can be
         // tested with just a hot reload.
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-      ),
-      home: const HomePage(title: 'G2E'),
-    );
-  }
-}
-
-class HomePage extends StatefulWidget {
-  const HomePage({super.key, required this.title});
-
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
-
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
-
-  final String title;
-
-  @override
-  State<HomePage> createState() => _HomePageState();
-}
-
-class _HomePageState extends State<HomePage> {
-
-  @override
-  Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
-    return Scaffold(
-      appBar: G2EAppbar(title: widget.title), 
-      body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
-        child: Column(
-          // Column is also a layout widget. It takes a list of children and
-          // arranges them vertically. By default, it sizes itself to fit its
-          // children horizontally, and tries to be as tall as its parent.
-          //
-          // Column has various properties to control how it sizes itself and
-          // how it positions its children. Here we use mainAxisAlignment to
-          // center the children vertically; the main axis here is the vertical
-          // axis because Columns are vertical (the cross axis would be
-          // horizontal).
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            const Text('Welcome to G2E! Go to a page to access a resource! '),
-          ],
-        ),
       ),
     );
   }
