@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:g2e/widgets/g2e_appbar.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:flutter_map/flutter_map.dart';
@@ -181,79 +182,117 @@ class _MapPageState extends State<MapPage> {
 
   @override
   Widget build(BuildContext context) {
-    // Filter the events list based on the selected category
     final filteredEvents = _selectedCategory == 'all'
         ? _events
-        : _events
-              .where((event) => event.categoryId == _selectedCategory)
-              .toList();
+        : _events.where((event) => event.categoryId == _selectedCategory).toList();
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.title),
-        actions: [
-          // Dropdown for category filtering
-          if (_categories.isNotEmpty)
-            DropdownButton<String>(
-              value: _selectedCategory,
-              icon: const Icon(Icons.arrow_downward, color: Colors.white),
-              dropdownColor: Colors.grey[800],
-              style: const TextStyle(color: Colors.white),
-              onChanged: (String? newValue) {
+      appBar: AidlinkAppbar(title: widget.title),
+      body: Stack(
+        children: [
+          _isLoading
+              ? const Center(child: CircularProgressIndicator())
+              : _error != null
+                  ? Center(child: Text('Error: $_error'))
+                  : FlutterMap(
+                      options: const MapOptions(
+                        initialCenter: LatLng(0, 0),
+                        initialZoom: 2.0,
+                      ),
+                      children: [
+                        TileLayer(
+                          urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                          userAgentPackageName: 'com.example.app',
+                        ),
+                        MarkerLayer(
+                          markers: filteredEvents.map((event) {
+                            return Marker(
+                              width: 80.0,
+                              height: 80.0,
+                              point: event.coordinates,
+                              child: Tooltip(
+                                message: event.title,
+                                child: Icon(
+                                  Icons.location_on,
+                                  color: _categoryColors[event.categoryId] ?? Colors.red,
+                                  size: 40.0,
+                                ),
+                              ),
+                            );
+                          }).toList(),
+                        ),
+                      ],
+                    ),
+          Positioned(
+            top: 16,
+            right: 16,
+            child: MapActionsWidget(
+              categories: _categories,
+              selectedCategory: _selectedCategory,
+              onCategoryChanged: (newValue) {
                 setState(() {
                   _selectedCategory = newValue;
                 });
               },
-              items: _categories.map<DropdownMenuItem<String>>((
-                EventCategory category,
-              ) {
-                return DropdownMenuItem<String>(
-                  value: category.id,
-                  child: Text(category.title),
-                );
-              }).toList(),
+              onRefresh: _fetchEonetEvents,
+              isLoading: _isLoading,
             ),
-          IconButton(
-            icon: const Icon(Icons.refresh, color: Colors.white),
-            onPressed: _isLoading ? null : _fetchEonetEvents,
           ),
         ],
       ),
-      body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : _error != null
-          ? Center(child: Text('Error: $_error'))
-          : FlutterMap(
-              options: const MapOptions(
-                initialCenter: LatLng(0, 0),
-                initialZoom: 2.0,
+    );
+  }
+}
+
+class MapActionsWidget extends StatelessWidget {
+  final List<EventCategory> categories;
+  final String? selectedCategory;
+  final ValueChanged<String?> onCategoryChanged;
+  final VoidCallback onRefresh;
+  final bool isLoading;
+
+  const MapActionsWidget({
+    super.key,
+    required this.categories,
+    required this.selectedCategory,
+    required this.onCategoryChanged,
+    required this.onRefresh,
+    required this.isLoading,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      color: Colors.grey[900]?.withOpacity(0.85),
+      elevation: 6,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (categories.isNotEmpty)
+              DropdownButton<String>(
+                value: selectedCategory,
+                icon: const Icon(Icons.arrow_downward, color: Colors.white),
+                dropdownColor: Colors.grey[800],
+                style: const TextStyle(color: Colors.white),
+                onChanged: onCategoryChanged,
+                items: categories.map<DropdownMenuItem<String>>((category) {
+                  return DropdownMenuItem<String>(
+                    value: category.id,
+                    child: Text(category.title),
+                  );
+                }).toList(),
               ),
-              children: [
-                TileLayer(
-                  urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                  userAgentPackageName: 'com.example.app',
-                ),
-                MarkerLayer(
-                  markers: filteredEvents.map((event) {
-                    return Marker(
-                      width: 80.0,
-                      height: 80.0,
-                      point: event.coordinates,
-                      child: Tooltip(
-                        message: event.title,
-                        child: Icon(
-                          Icons.location_on,
-                          // Use the color associated with the event's category
-                          color:
-                              _categoryColors[event.categoryId] ?? Colors.red,
-                          size: 40.0,
-                        ),
-                      ),
-                    );
-                  }).toList(),
-                ),
-              ],
+            IconButton(
+              icon: const Icon(Icons.refresh, color: Colors.white),
+              onPressed: isLoading ? null : onRefresh,
+              tooltip: 'Refresh Events',
             ),
+          ],
+        ),
+      ),
     );
   }
 }
