@@ -29,7 +29,7 @@ class _FoodCalcPageState extends State<FoodCalcPage> {
           // horizontal).
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            const Text('MAP'),
+            const Text('Food Calculation'),
           ],
         ),
       ),
