@@ -14,7 +14,7 @@ class FoodCalcPage extends StatefulWidget {
 
   List<DropdownMenuItem> listToDropdownOptions(List<String> list) {
     return list.map((String option) {
-      return DropdownMenuItem<String>(value: option, child: Text(option));
+      return DropdownMenuItem<String>(value: option, child: Text(option,  style: TextStyle(color: Color.fromARGB(255, 255, 255, 255))));
     }).toList();
   }
 
@@ -44,15 +44,26 @@ class _FoodCalcPageState extends State<FoodCalcPage> {
           // horizontal).
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            DropdownButton(
-              items: widget.listToDropdownOptions(FoodCalcPage.foodTypeOptions),
-              value: foodType,
-              onChanged: (value) {
-                setState(() {
-                  foodType = value;
-                });
-              },
-              borderRadius: BorderRadius.circular(8),
+            //For the type of food
+            Card(
+              color: Colors.grey[900],
+              elevation: 6,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: DropdownButton(
+                items: widget.listToDropdownOptions(
+                  FoodCalcPage.foodTypeOptions,
+                ),
+                value: foodType,
+                onChanged: (value) {
+                  setState(() {
+                    foodType = value;
+                  });
+                },
+                borderRadius: BorderRadius.circular(8),
+                dropdownColor: Colors.grey[900],
+              ),
             ),
           ],
         ),
