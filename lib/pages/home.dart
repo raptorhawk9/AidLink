@@ -30,39 +30,54 @@ class _HomePageState extends State<HomePage> {
     // than having to individually change instances of widgets.
     return Scaffold(
       appBar: AidlinkAppbar(title: widget.title),
-      body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
-        child: Column(
-          // Column is also a layout widget. It takes a list of children and
-          // arranges them vertically. By default, it sizes itself to fit its
-          // children horizontally, and tries to be as tall as its parent.
-          //
-          // Column has various properties to control how it sizes itself and
-          // how it positions its children. Here we use mainAxisAlignment to
-          // center the children vertically; the main axis here is the vertical
-          // axis because Columns are vertical (the cross axis would be
-          // horizontal).
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Image.asset("images/relief.jpg", scale: 5,), 
-            const Text('Welcome to AidLink', style: TextStyle(fontSize: 40)),
-            Padding(padding: EdgeInsetsGeometry.all(4)),
-            const Text(
-              "Disasters are bad. But your response is just as important. ",
-              style: TextStyle(fontSize: 25),
+
+      // Center is a layout widget. It takes a single child and positions it
+      // in the middle of the parent.
+      body: Container(
+        decoration: BoxDecoration(
+          image: DecorationImage(
+            image: AssetImage("images/relief.jpg"),
+            fit: BoxFit.fitWidth,
+            colorFilter: ColorFilter.mode(
+              Colors.black.withValues(alpha: 70), // darkening overlay color
+              BlendMode.darken, // blend mode for darkening effect
             ),
-            Padding(padding: EdgeInsetsGeometry.all(4)),
-            const Text(
-              "AidLink aims to help you with surviving after a crisis. ",
-              style: TextStyle(fontSize: 25),
-            ),
-            Padding(padding: EdgeInsetsGeometry.all(4)),
-            const Text(
-              "We offer a map of disasters in your area, a calculator for how long your food will last, and a navigational guide. ",
-              style: TextStyle(fontSize: 20),
-            ),
-          ],
+          ),
+        ),
+        child: Center(
+          child: Column(
+            // Column is also a layout widget. It takes a list of children and
+            // arranges them vertically. By default, it sizes itself to fit its
+            // children horizontally, and tries to be as tall as its parent.
+            //
+            // Column has various properties to control how it sizes itself and
+            // how it positions its children. Here we use mainAxisAlignment to
+            // center the children vertically; the main axis here is the vertical
+            // axis because Columns are vertical (the cross axis would be
+            // horizontal).
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              const Text(
+                'Welcome to AidLink',
+                style: TextStyle(fontSize: 40, color: Colors.white),
+              ),
+              Padding(padding: EdgeInsetsGeometry.all(4)),
+              const Text(
+                "Disasters are bad. But your response is just as important. ",
+                style: TextStyle(fontSize: 25, color: Colors.white),
+              ),
+              Padding(padding: EdgeInsetsGeometry.all(4)),
+              const Text(
+                "AidLink aims to help you with surviving after a crisis. ",
+                style: TextStyle(fontSize: 25, color: Colors.white),
+              ),
+              Padding(padding: EdgeInsetsGeometry.all(4)),
+              const Text(
+                "We offer a map of disasters in your area, a calculator for how long your food will last, and a navigational guide. ",
+                style: TextStyle(fontSize: 20, color: Colors.white),
+              ),
+            ],
+          ),
         ),
       ),
     );
