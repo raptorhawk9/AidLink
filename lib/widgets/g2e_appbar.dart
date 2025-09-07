@@ -19,7 +19,7 @@ class AidlinkAppbar extends StatelessWidget implements PreferredSizeWidget {
         actions: [
           TextButton(onPressed: () => {navigateToNewSubpage(context, '/map')}, child: Text("Disaster Map")), 
           TextButton(onPressed: () => {navigateToNewSubpage(context, '/food-calc')}, child: Text("Food Calc")), 
-          TextButton(onPressed: () => {print("Env Nav")}, child: Text("Navigation")), 
+          TextButton(onPressed: () => {navigateToNewSubpage(context, '/nav')}, child: Text("Navigation")), 
         ],
     );
   }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:g2e/pages/food_calc.dart';
 import 'package:g2e/pages/home.dart';
 import 'package:g2e/pages/map.dart';
+import 'package:g2e/pages/navigation.dart';
 
 void main() {
   runApp(const AidLink());
@@ -21,6 +22,7 @@ class AidLink extends StatelessWidget {
         '/': (context) => HomePage(title: title),  
         '/food-calc': (context) => FoodCalcPage(title: title), 
         '/map': (context) => MapPage(title: title),
+        '/nav': (context) => NavigationPage(title: title), 
       },
       title: 'AidLink',
       theme: ThemeData(
