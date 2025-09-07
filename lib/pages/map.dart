@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:g2e/widgets/g2e_appbar.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:flutter_map/flutter_map.dart';
@@ -14,9 +13,18 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
+    return MaterialApp(
       title: 'Disaster Map',
-      home: MapPage(title: 'Disaster Map'),
+      theme: ThemeData(
+        brightness: Brightness.dark,
+        primarySwatch: Colors.blueGrey,
+        scaffoldBackgroundColor: const Color(0xFF1E1E1E),
+        appBarTheme: const AppBarTheme(
+          backgroundColor: Color(0xFF2E2E2E),
+          elevation: 0,
+        ),
+      ),
+      home: const MapPage(title: 'Disaster Map'),
     );
   }
 }
@@ -55,11 +63,14 @@ class MapPage extends StatefulWidget {
 class _MapPageState extends State<MapPage> {
   List<EonetEvent> _events = [];
   List<EventCategory> _categories = [];
+  final MapController _mapController = MapController();
+  final double _zoomThreshold =
+      5.0; // Markers will only appear at this zoom level or higher
+  double _currentZoom = 2.0;
   bool _isLoading = true;
-  String? _error;
-  String? _selectedCategory; // This holds the ID of the selected category
+  String? _selectedCategory; // Holds ID of the selected category
 
-  // Map to store a color for each category ID.
+  // Map to store a color for each category ID
   final Map<String, Color> _categoryColors = {};
 
   @override
@@ -69,6 +80,20 @@ class _MapPageState extends State<MapPage> {
     _fetchEonetCategories().then((_) {
       _fetchEonetEvents();
     });
+
+    _mapController.mapEventStream.listen((mapEvent) {
+      if (mapEvent is MapEventMove || mapEvent is MapEventMoveEnd) {
+        setState(() {
+          _currentZoom = _mapController.camera.zoom;
+        });
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _mapController.dispose();
+    super.dispose();
   }
 
   // Assigns a consistent color to each category ID.
@@ -88,141 +113,114 @@ class _MapPageState extends State<MapPage> {
     }
   }
 
-  // Asynchronous function to fetch categories from the EONET API.
+  // Fetch categories from the EONET API.
   Future<void> _fetchEonetCategories() async {
-    try {
-      final response = await http.get(
-        Uri.parse('https://eonet.gsfc.nasa.gov/api/v2.1/categories'),
+    final response = await http.get(
+      Uri.parse('https://eonet.gsfc.nasa.gov/api/v2.1/categories'),
+    );
+    final data = json.decode(response.body);
+    final categories = <EventCategory>[];
+    categories.add(EventCategory(id: 'all', title: 'All Events'));
+    for (var category in data['categories']) {
+      categories.add(
+        EventCategory(id: category['id'].toString(), title: category['title']),
       );
-      if (response.statusCode == 200) {
-        final data = json.decode(response.body);
-        final categories = <EventCategory>[];
-        categories.add(EventCategory(id: 'all', title: 'All Events'));
-        for (var category in data['categories']) {
-          categories.add(
-            EventCategory(
-              id: category['id'].toString(),
-              title: category['title'],
-            ),
-          );
-        }
-        setState(() {
-          _categories = categories;
-          _selectedCategory = 'all'; // Set initial filter to show all events.
-          _assignCategoryColors();
-        });
-      } else {
-        setState(() {
-          _error =
-              'Failed to load categories. Status code: ${response.statusCode}';
-        });
-      }
-    } catch (e) {
-      setState(() {
-        _error = 'An error occurred while fetching categories: $e';
-      });
     }
+    setState(() {
+      _categories = categories;
+      _selectedCategory = 'all'; // Set initial filter to show all events.
+      _assignCategoryColors();
+    });
   }
 
-  // Asynchronous function to fetch events from the EONET API.
+  // Fetch events from the EONET API.
   Future<void> _fetchEonetEvents() async {
     setState(() {
       _isLoading = true;
-      _error = null;
     });
 
-    try {
-      final response = await http.get(
-        Uri.parse('https://eonet.gsfc.nasa.gov/api/v2.1/events'),
-      );
-      if (response.statusCode == 200) {
-        final data = json.decode(response.body);
-        final events = <EonetEvent>[];
-        for (var event in data['events']) {
-          if (event['geometries'] != null && event['geometries'].isNotEmpty) {
-            for (var geometry in event['geometries']) {
-              if (geometry['type'] == 'Point') {
-                final coords = geometry['coordinates'];
-                // Get the first category for the event to use for filtering and coloring.
-                final categoryId =
-                    event['categories'] != null &&
-                        event['categories'].isNotEmpty
-                    ? event['categories'][0]['id'].toString()
-                    : 'unknown';
-                events.add(
-                  EonetEvent(
-                    id: event['id'],
-                    title: event['title'],
-                    coordinates: LatLng(coords[1], coords[0]),
-                    categoryId: categoryId,
-                  ),
-                );
-              }
-            }
+    final response = await http.get(
+      Uri.parse('https://eonet.gsfc.nasa.gov/api/v2.1/events'),
+    );
+    final data = json.decode(response.body);
+    final events = <EonetEvent>[];
+    for (var event in data['events']) {
+      if (event['geometries'] != null && event['geometries'].isNotEmpty) {
+        for (var geometry in event['geometries']) {
+          if (geometry['type'] == 'Point') {
+            final coords = geometry['coordinates'];
+            // Get the first category for the event to use for filtering and coloring.
+            final categoryId =
+                event['categories'] != null && event['categories'].isNotEmpty
+                ? event['categories'][0]['id'].toString()
+                : 'unknown';
+            events.add(
+              EonetEvent(
+                id: event['id'],
+                title: event['title'],
+                coordinates: LatLng(coords[1], coords[0]),
+                categoryId: categoryId,
+              ),
+            );
           }
         }
-        setState(() {
-          _events = events;
-        });
-      } else {
-        setState(() {
-          _error = 'Failed to load events. Status code: ${response.statusCode}';
-        });
       }
-    } catch (e) {
-      setState(() {
-        _error = 'An error occurred while fetching events: $e';
-      });
-    } finally {
-      setState(() {
-        _isLoading = false;
-      });
     }
+    setState(() {
+      _events = events;
+      _isLoading = false;
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     final filteredEvents = _selectedCategory == 'all'
         ? _events
-        : _events.where((event) => event.categoryId == _selectedCategory).toList();
+        : _events
+              .where((event) => event.categoryId == _selectedCategory)
+              .toList();
 
     return Scaffold(
-      appBar: AidlinkAppbar(title: widget.title),
+      appBar: AppBar(title: Text(widget.title)),
       body: Stack(
         children: [
           _isLoading
               ? const Center(child: CircularProgressIndicator())
-              : _error != null
-                  ? Center(child: Text('Error: $_error'))
-                  : FlutterMap(
-                      options: const MapOptions(
-                        initialCenter: LatLng(0, 0),
-                        initialZoom: 2.0,
-                      ),
-                      children: [
-                        TileLayer(
-                          urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                          userAgentPackageName: 'com.example.app',
-                        ),
-                        MarkerLayer(
-                          markers: filteredEvents.map((event) {
-                            return Marker(
-                              width: 80.0,
-                              height: 80.0,
-                              point: event.coordinates,
-                              child: Tooltip(
-                                message: event.title,
-                                child: Icon(
-                                  Icons.location_on,
-                                  color: _categoryColors[event.categoryId] ?? Colors.red,
-                                  size: 40.0,
-                                ),
-                              ),
-                            );
-                          }).toList(),
-                        ),
-                      ],
+              : FlutterMap(
+                  mapController: _mapController,
+                  options: const MapOptions(
+                    initialCenter: LatLng(0, 0),
+                    initialZoom: 2.0,
+                  ),
+                  children: [
+                    TileLayer(
+                      urlTemplate:
+                          'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                      userAgentPackageName: 'com.example.app',
                     ),
+                    // Only show markers if zoom level is above the threshold of 5.0
+                    if (_currentZoom >= _zoomThreshold)
+                      MarkerLayer(
+                        markers: filteredEvents.map((event) {
+                          return Marker(
+                            width: 80.0,
+                            height: 80.0,
+                            point: event.coordinates,
+                            child: Tooltip(
+                              message: event.title,
+                              child: Icon(
+                                Icons.location_on,
+                                color:
+                                    _categoryColors[event.categoryId] ??
+                                    Colors.red,
+                                size: 40.0,
+                              ),
+                            ),
+                          );
+                        }).toList(),
+                      ),
+                  ],
+                ),
           Positioned(
             top: 16,
             right: 16,
@@ -263,7 +261,7 @@ class MapActionsWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-      color: Colors.grey[900]?.withOpacity(0.85),
+      color: Colors.grey[900],
       elevation: 6,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Padding(
