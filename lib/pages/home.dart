@@ -20,7 +20,6 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-
   @override
   Widget build(BuildContext context) {
     // This method is rerun every time setState is called, for instance as done
@@ -30,7 +29,7 @@ class _HomePageState extends State<HomePage> {
     // fast, so that you can just rebuild anything that needs updating rather
     // than having to individually change instances of widgets.
     return Scaffold(
-      appBar: AidlinkAppbar(title: widget.title), 
+      appBar: AidlinkAppbar(title: widget.title),
       body: Center(
         // Center is a layout widget. It takes a single child and positions it
         // in the middle of the parent.
@@ -46,7 +45,23 @@ class _HomePageState extends State<HomePage> {
           // horizontal).
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            const Text('Welcome to AidLink! Go to a page to access a resource! '),
+            Image.asset("images/relief.jpg", scale: 5,), 
+            const Text('Welcome to AidLink', style: TextStyle(fontSize: 40)),
+            Padding(padding: EdgeInsetsGeometry.all(4)),
+            const Text(
+              "Disasters are bad. But your response is just as important. ",
+              style: TextStyle(fontSize: 25),
+            ),
+            Padding(padding: EdgeInsetsGeometry.all(4)),
+            const Text(
+              "AidLink aims to help you with surviving after a crisis. ",
+              style: TextStyle(fontSize: 25),
+            ),
+            Padding(padding: EdgeInsetsGeometry.all(4)),
+            const Text(
+              "We offer a map of disasters in your area, a calculator for how long your food will last, and a navigational guide. ",
+              style: TextStyle(fontSize: 20),
+            ),
           ],
         ),
       ),

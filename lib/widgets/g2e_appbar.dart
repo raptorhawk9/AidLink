@@ -18,7 +18,8 @@ class AidlinkAppbar extends StatelessWidget implements PreferredSizeWidget {
         title: Row(
           children: [
             Text("AidLink"), 
-            Image.asset("images/dove.png", scale: 5.5,)
+            Padding(padding: EdgeInsetsGeometry.directional(start: 18)), 
+            Image.asset("images/dove.png", scale: 8,), 
           ],
         ),
         actions: [
