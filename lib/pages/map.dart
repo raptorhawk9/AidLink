@@ -21,7 +21,7 @@ class MyApp extends StatelessWidget {
   }
 }
 
-// A simple model to represent a disaster event from the EONET API
+// Disaster event from the EONET API
 class EonetEvent {
   final String id;
   final String title;
@@ -55,6 +55,10 @@ class MapPage extends StatefulWidget {
 class _MapPageState extends State<MapPage> {
   List<EonetEvent> _events = [];
   List<EventCategory> _categories = [];
+  final MapController _mapController = MapController();
+  final double _zoomThreshold =
+      5.0; // Markers will only appear at this zoom level or higher
+  double _currentZoom = 2.0;
   bool _isLoading = true;
   String? _error;
   String? _selectedCategory; // This holds the ID of the selected category
@@ -65,10 +69,24 @@ class _MapPageState extends State<MapPage> {
   @override
   void initState() {
     super.initState();
-    // Fetch categories and then events when the app starts.
+    // Get categories then events when the app starts.
     _fetchEonetCategories().then((_) {
       _fetchEonetEvents();
     });
+
+    _mapController.mapEventStream.listen((mapEvent) {
+      if (mapEvent is MapEventMove || mapEvent is MapEventMoveEnd) {
+        setState(() {
+          _currentZoom = _mapController.camera.zoom;
+        });
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _mapController.dispose();
+    super.dispose();
   }
 
   // Assigns a consistent color to each category ID.
@@ -184,45 +202,52 @@ class _MapPageState extends State<MapPage> {
   Widget build(BuildContext context) {
     final filteredEvents = _selectedCategory == 'all'
         ? _events
-        : _events.where((event) => event.categoryId == _selectedCategory).toList();
+        : _events
+              .where((event) => event.categoryId == _selectedCategory)
+              .toList();
 
     return Scaffold(
-      appBar: AidlinkAppbar(title: widget.title),
+      appBar: const AidlinkAppbar(title: 'Disaster Map'),
       body: Stack(
         children: [
           _isLoading
               ? const Center(child: CircularProgressIndicator())
               : _error != null
-                  ? Center(child: Text('Error: $_error'))
-                  : FlutterMap(
-                      options: const MapOptions(
-                        initialCenter: LatLng(0, 0),
-                        initialZoom: 2.0,
-                      ),
-                      children: [
-                        TileLayer(
-                          urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                          userAgentPackageName: 'com.example.app',
-                        ),
-                        MarkerLayer(
-                          markers: filteredEvents.map((event) {
-                            return Marker(
-                              width: 80.0,
-                              height: 80.0,
-                              point: event.coordinates,
-                              child: Tooltip(
-                                message: event.title,
-                                child: Icon(
-                                  Icons.location_on,
-                                  color: _categoryColors[event.categoryId] ?? Colors.red,
-                                  size: 40.0,
-                                ),
-                              ),
-                            );
-                          }).toList(),
-                        ),
-                      ],
+              ? Center(child: Text('Error: $_error'))
+              : FlutterMap(
+                  mapController: _mapController,
+                  options: const MapOptions(
+                    initialCenter: LatLng(0, 0),
+                    initialZoom: 2.0,
+                  ),
+                  children: [
+                    TileLayer(
+                      urlTemplate:
+                          'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                      userAgentPackageName: 'com.example.app',
                     ),
+                    if (_currentZoom >= _zoomThreshold)
+                      MarkerLayer(
+                        markers: filteredEvents.map((event) {
+                          return Marker(
+                            width: 80.0,
+                            height: 80.0,
+                            point: event.coordinates,
+                            child: Tooltip(
+                              message: event.title,
+                              child: Icon(
+                                Icons.location_on,
+                                color:
+                                    _categoryColors[event.categoryId] ??
+                                    Colors.red,
+                                size: 40.0,
+                              ),
+                            ),
+                          );
+                        }).toList(),
+                      ),
+                  ],
+                ),
           Positioned(
             top: 16,
             right: 16,
