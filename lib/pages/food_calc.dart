@@ -1,3 +1,4 @@
+
 import 'package:flutter/material.dart';
 import 'package:g2e/widgets/g2e_appbar.dart';
 
@@ -5,16 +6,22 @@ class FoodCalcPage extends StatefulWidget {
   const FoodCalcPage({super.key, required this.title});
   final String title;
 
-  static const List<String> foodTypeOptions = [
-    "Canned Food",
-    "Meat",
-    "Vegetables",
-    "Processed Food",
-  ];
+  static const Map<String, String> foodTypeOptions = {
+    "canned_food": "Canned Food (anything in a sealed can)", 
+    "meat": "Meat (anything from animals)",
+    "veg": "Vegetables (include fruit as well. Anything from plants. )",
+    "pros_food": "Processed Food (anything that's been modified or added. )",
+  };
 
-  List<DropdownMenuItem> listToDropdownOptions(List<String> list) {
-    return list.map((String option) {
-      return DropdownMenuItem<String>(value: option, child: Text(option,  style: TextStyle(color: Color.fromARGB(255, 255, 255, 255))));
+  List<DropdownMenuItem> mapToDropdownOptions(Map<String, String> map) {
+    return map.entries.map((entry) {
+      return DropdownMenuItem<String>(
+        value: entry.key,
+        child: Text(
+          entry.value,
+          style: TextStyle(color: Color.fromARGB(255, 255, 255, 255)),
+        ),
+      );
     }).toList();
   }
 
@@ -44,6 +51,7 @@ class _FoodCalcPageState extends State<FoodCalcPage> {
           // horizontal).
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
+            Text("Please input the type of food! ", style: TextStyle(fontSize: 20),), 
             //For the type of food
             Card(
               color: Colors.grey[900],
@@ -52,9 +60,12 @@ class _FoodCalcPageState extends State<FoodCalcPage> {
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 8,
+                ),
                 child: DropdownButton(
-                  items: widget.listToDropdownOptions(
+                  items: widget.mapToDropdownOptions(
                     FoodCalcPage.foodTypeOptions,
                   ),
                   value: foodType,
@@ -65,13 +76,12 @@ class _FoodCalcPageState extends State<FoodCalcPage> {
                   },
                   borderRadius: BorderRadius.circular(8),
                   dropdownColor: Colors.grey[900],
+                  ),
                 ),
               ),
-            ),
           ],
         ),
       ),
     );
   }
 }
-
