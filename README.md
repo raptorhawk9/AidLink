@@ -15,3 +15,5 @@ Integrating interactive maps into our UI was easy, but making it look good was h
 We're proud that we made a useful product for those in need of assistance, and we were able to work as a team to solve problems and figure the code out. 
 ## What we learned
 We learned teamwork skills and API usage. We also increased our understanding of flutter. 
+
+Thanks to NASA EONET API and Google Maps Embed API, Directions API, and Maps JavaScript API.
