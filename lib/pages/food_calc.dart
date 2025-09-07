@@ -3,15 +3,19 @@ import 'package:g2e/widgets/g2e_appbar.dart';
 
 class FoodCalcPage extends StatefulWidget {
   const FoodCalcPage({super.key, required this.title});
+  //For the Appbar
   final String title;
+  //How the result of the calculation should be rendered
   static const TextStyle resultTextStyle = TextStyle(fontSize: 30);
 
+  //Map for the options--internal identifier and the display text
+  //for the food types
   static const Map<String, String> foodTypeOptions = {
     "canned_food": "Canned Food (anything in a sealed can)",
     "meat": "Meat (anything from animals)",
     "veg": "Vegetables (include fruit as well. Anything from plants. )",
   };
-
+  //for the storage conditions
   static const Map<String, String> storageConditionOptions = {
     "cool_dry": "A cool, dry place",
     "hot_dry": "A really hot, but dry place",
@@ -20,7 +24,7 @@ class FoodCalcPage extends StatefulWidget {
     "hot_wet": "A really hot, really humid / wet place",
     "cold_wet": "A really cold, but humid / wet place (excluding ice)",
   };
-
+  //Converts the above maps to flutter's DropdownMenuItems. Having the maps just makes things easier. 
   List<DropdownMenuItem> mapToDropdownOptions(Map<String, String> map) {
     return map.entries.map((entry) {
       return DropdownMenuItem<String>(
@@ -38,6 +42,7 @@ class FoodCalcPage extends StatefulWidget {
 }
 
 class _FoodCalcPageState extends State<FoodCalcPage> {
+  //these correspond to what the user inputs
   String? foodType;
   String? storageCondition;
 
@@ -48,6 +53,11 @@ class _FoodCalcPageState extends State<FoodCalcPage> {
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
+          // the rest of it here goes as: 
+          // --instruction--
+          // --dropdown--
+          // ---more inputs---
+          // calculation result
           children: <Widget>[
             Text(
               "Please input the type of food! ",
@@ -111,6 +121,7 @@ class _FoodCalcPageState extends State<FoodCalcPage> {
                 ),
               ),
             ),
+            // Uses nested switch-case statements to account for every possibility in a scalable way. 
             switch (foodType) {
               "canned_food" => switch (storageCondition) {
                 "cool_dry" => Text(

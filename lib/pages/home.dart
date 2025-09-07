@@ -73,8 +73,9 @@ class _HomePageState extends State<HomePage> {
               ),
               Padding(padding: EdgeInsetsGeometry.all(4)),
               const Text(
-                "We offer a map of disasters in your area, a calculator for how long your food will last, and a navigational guide. ",
-                style: TextStyle(fontSize: 20, color: Colors.white),
+                "We offer a map of disasters in your area, \na calculator for how long your food will last, \nand a navigational guide. ",
+                style: TextStyle(fontSize: 25, color: Colors.white, fontWeight: FontWeight.bold),
+                textAlign: TextAlign.center,
               ),
             ],
           ),
