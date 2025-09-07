@@ -9,6 +9,7 @@ void main() {
   runApp(const MyApp());
 }
 
+// MyApp is a stateless widget that doesn't change once created
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
@@ -21,14 +22,14 @@ class MyApp extends StatelessWidget {
   }
 }
 
-// Disaster event from the EONET API
-class EonetEvent {
+// DisasterEvent holds all the information we need for one event.
+class DisasterEvent {
   final String id;
   final String title;
   final LatLng coordinates;
   final String categoryId;
 
-  EonetEvent({
+  DisasterEvent({
     required this.id,
     required this.title,
     required this.coordinates,
@@ -36,14 +37,15 @@ class EonetEvent {
   });
 }
 
-// A model for the event categories
-class EventCategory {
+// This is a blueprint for the different types of events, like "Wildfire" or "Flood."
+class DisasterCategory {
   final String id;
   final String title;
 
-  EventCategory({required this.id, required this.title});
+  DisasterCategory({required this.id, required this.title});
 }
 
+// Main map screen. It's a "stateful" widget because the map and the markers will change over time.
 class MapPage extends StatefulWidget {
   const MapPage({super.key, required this.title});
   final String title;
@@ -53,28 +55,35 @@ class MapPage extends StatefulWidget {
 }
 
 class _MapPageState extends State<MapPage> {
-  List<EonetEvent> _events = [];
-  List<EventCategory> _categories = [];
+  // Lists to store the disaster events and categories from the EONET API.
+  List<DisasterEvent> _events = [];
+  List<DisasterCategory> _categories = [];
+
+  // Helps to control the map like zooming in and out
   final MapController _mapController = MapController();
-  final double _zoomThreshold =
-      5.0; // Markers will only appear at this zoom level or higher
+
+  // Only show markers when the map is zoomed in past zoomThreshold to reduce lag.
+  final double _zoomThreshold = 5.0;
   double _currentZoom = 2.0;
   bool _isLoading = true;
-  String? _error;
-  String? _selectedCategory; // This holds the ID of the selected category
 
-  // Map to store a color for each category ID.
+  // Stores ID of the category currently selected in the dropdown menu.
+  String? _selectedCategory;
+
+  // This map stores a color for each type of disaster, so they look different on the map.
   final Map<String, Color> _categoryColors = {};
 
   @override
   void initState() {
     super.initState();
-    // Get categories then events when the app starts.
+    // When the page first loads, we "ask" the internet for the categories and then the events.
     _fetchEonetCategories().then((_) {
       _fetchEonetEvents();
     });
 
+    // We listen to the map to know when the user zooms in or out.
     _mapController.mapEventStream.listen((mapEvent) {
+      // If the map has moved, we update our variable that tracks the zoom level.
       if (mapEvent is MapEventMove || mapEvent is MapEventMoveEnd) {
         setState(() {
           _currentZoom = _mapController.camera.zoom;
@@ -89,7 +98,7 @@ class _MapPageState extends State<MapPage> {
     super.dispose();
   }
 
-  // Assigns a consistent color to each category ID.
+  // Function assigns a color to each type of disaster.
   void _assignCategoryColors() {
     final colors = [
       Colors.red,
@@ -106,100 +115,80 @@ class _MapPageState extends State<MapPage> {
     }
   }
 
-  // Asynchronous function to fetch categories from the EONET API.
+  // Get data from NASA API to get a list of all the disaster categories.
   Future<void> _fetchEonetCategories() async {
-    try {
-      final response = await http.get(
-        Uri.parse('https://eonet.gsfc.nasa.gov/api/v2.1/categories'),
-      );
-      if (response.statusCode == 200) {
-        final data = json.decode(response.body);
-        final categories = <EventCategory>[];
-        categories.add(EventCategory(id: 'all', title: 'All Events'));
-        for (var category in data['categories']) {
-          categories.add(
-            EventCategory(
-              id: category['id'].toString(),
-              title: category['title'],
-            ),
-          );
-        }
-        setState(() {
-          _categories = categories;
-          _selectedCategory = 'all'; // Set initial filter to show all events.
-          _assignCategoryColors();
-        });
-      } else {
-        setState(() {
-          _error =
-              'Failed to load categories. Status code: ${response.statusCode}';
-        });
+    final response = await http.get(
+      Uri.parse('https://eonet.gsfc.nasa.gov/api/v2.1/categories'),
+    );
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      final categories = <DisasterCategory>[];
+      categories.add(DisasterCategory(id: 'all', title: 'All Events'));
+      for (var category in data['categories']) {
+        categories.add(
+          DisasterCategory(
+            id: category['id'].toString(),
+            title: category['title'],
+          ),
+        );
       }
-    } catch (e) {
+      // Tells the app to refresh and draw the new categories on the screen.
       setState(() {
-        _error = 'An error occurred while fetching categories: $e';
+        _categories = categories;
+        _selectedCategory = 'all';
+        _assignCategoryColors();
       });
     }
   }
 
-  // Asynchronous function to fetch events from the EONET API.
+  // Gets data from the NASA API to get a list of all the recent disaster events.
   Future<void> _fetchEonetEvents() async {
+    // Shows a loading circle while waiting for the internet.
     setState(() {
       _isLoading = true;
-      _error = null;
     });
 
-    try {
-      final response = await http.get(
-        Uri.parse('https://eonet.gsfc.nasa.gov/api/v2.1/events'),
-      );
-      if (response.statusCode == 200) {
-        final data = json.decode(response.body);
-        final events = <EonetEvent>[];
-        for (var event in data['events']) {
-          if (event['geometries'] != null && event['geometries'].isNotEmpty) {
-            for (var geometry in event['geometries']) {
-              if (geometry['type'] == 'Point') {
-                final coords = geometry['coordinates'];
-                // Get the first category for the event to use for filtering and coloring.
-                final categoryId =
-                    event['categories'] != null &&
-                        event['categories'].isNotEmpty
-                    ? event['categories'][0]['id'].toString()
-                    : 'unknown';
-                events.add(
-                  EonetEvent(
-                    id: event['id'],
-                    title: event['title'],
-                    coordinates: LatLng(coords[1], coords[0]),
-                    categoryId: categoryId,
-                  ),
-                );
-              }
+    final response = await http.get(
+      Uri.parse('https://eonet.gsfc.nasa.gov/api/v2.1/events'),
+    );
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      final events = <DisasterEvent>[];
+      for (var event in data['events']) {
+        if (event['geometries'] != null && event['geometries'].isNotEmpty) {
+          for (var geometry in event['geometries']) {
+            if (geometry['type'] == 'Point') {
+              final coords = geometry['coordinates'];
+              final categoryId =
+                  event['categories'] != null && event['categories'].isNotEmpty
+                  ? event['categories'][0]['id'].toString()
+                  : 'unknown';
+              events.add(
+                DisasterEvent(
+                  id: event['id'],
+                  title: event['title'],
+                  coordinates: LatLng(coords[1], coords[0]),
+                  categoryId: categoryId,
+                ),
+              );
             }
           }
         }
-        setState(() {
-          _events = events;
-        });
-      } else {
-        setState(() {
-          _error = 'Failed to load events. Status code: ${response.statusCode}';
-        });
       }
-    } catch (e) {
+      // Tells the app to refresh and show the new markers on the screen.
       setState(() {
-        _error = 'An error occurred while fetching events: $e';
-      });
-    } finally {
-      setState(() {
-        _isLoading = false;
+        _events = events;
       });
     }
+    // Hids the loading circle once the data is ready.
+    setState(() {
+      _isLoading = false;
+    });
   }
 
   @override
   Widget build(BuildContext context) {
+    // This line filters the events based selected category.
     final filteredEvents = _selectedCategory == 'all'
         ? _events
         : _events
@@ -210,10 +199,9 @@ class _MapPageState extends State<MapPage> {
       appBar: const AidlinkAppbar(title: 'Disaster Map'),
       body: Stack(
         children: [
+          // If its loading, shows a spinner. If not, shows the map.
           _isLoading
               ? const Center(child: CircularProgressIndicator())
-              : _error != null
-              ? Center(child: Text('Error: $_error'))
               : FlutterMap(
                   mapController: _mapController,
                   options: const MapOptions(
@@ -221,11 +209,13 @@ class _MapPageState extends State<MapPage> {
                     initialZoom: 2.0,
                   ),
                   children: [
+                    // This is the background of the map, like a simple world map.
                     TileLayer(
                       urlTemplate:
                           'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
                       userAgentPackageName: 'com.example.app',
                     ),
+                    // Markers are only shown if the map is zoomed in enough.
                     if (_currentZoom >= _zoomThreshold)
                       MarkerLayer(
                         markers: filteredEvents.map((event) {
@@ -248,6 +238,7 @@ class _MapPageState extends State<MapPage> {
                       ),
                   ],
                 ),
+          // Places the dropdown and refresh buttons on top of the map
           Positioned(
             top: 16,
             right: 16,
@@ -269,8 +260,9 @@ class _MapPageState extends State<MapPage> {
   }
 }
 
+// Separate widget for the buttons and dropdown menu.
 class MapActionsWidget extends StatelessWidget {
-  final List<EventCategory> categories;
+  final List<DisasterCategory> categories;
   final String? selectedCategory;
   final ValueChanged<String?> onCategoryChanged;
   final VoidCallback onRefresh;
@@ -288,7 +280,7 @@ class MapActionsWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-      color: Colors.grey[900]?.withOpacity(0.85),
+      color: Colors.grey[900],
       elevation: 6,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Padding(
