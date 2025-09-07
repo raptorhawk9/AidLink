@@ -15,7 +15,12 @@ class AidlinkAppbar extends StatelessWidget implements PreferredSizeWidget {
   Widget build(BuildContext context) {
     return AppBar(
       backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: Text(title),
+        title: Row(
+          children: [
+            Text("AidLink"), 
+            Image.asset("images/dove.png", scale: 5.5,)
+          ],
+        ),
         actions: [
           TextButton(onPressed: () => {navigateToNewSubpage(context, '/map')}, child: Text("Disaster Map")), 
           TextButton(onPressed: () => {navigateToNewSubpage(context, '/food-calc')}, child: Text("Food Calc")), 
